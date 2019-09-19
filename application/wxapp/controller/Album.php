@@ -5,10 +5,10 @@
  * Date: 2019/8/25
  * Time: 21:31
  */
-namespace app\wxapp\controller;
-use think\controller;
+namespace app\wxapp\Controller;
+use think\Controller;
 
-class Album extends controller
+class Album extends Controller
 {
 
     /**

@@ -6,7 +6,7 @@
  * Time: 19:54
  */
 
-namespace app\wxapp\controller;
+namespace app\wxapp\Controller;
 use Essence\Essence;
 use think\Controller;
 

@@ -8,13 +8,13 @@
 
 namespace app\wxapp\controller;
 
-use think\controller;
+use think\Controller;
 use Qiniu\Auth;
 use Qiniu\Storage\BucketManager;
 use Qiniu\Storage\UploadManager;
-use app\common\model;
+use app\common\Model;
 
-class Image extends controller
+class Image extends Controller
 {
     /**
      * 获取相册图片列表

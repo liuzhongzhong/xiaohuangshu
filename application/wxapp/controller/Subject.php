@@ -8,7 +8,7 @@
 
 namespace app\wxapp\controller;
 
-use think\controller;
+use think\Controller;
 use think\Model;
 
 class Subject extends Controller
