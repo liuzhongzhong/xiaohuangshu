@@ -13,8 +13,8 @@ use think\model\concern\SoftDelete;
 
 class User extends Model
 {
-    // 主键id名
     use SoftDelete;
+    // 主键id名
     protected $pk = 'user_id';
     // 软删除字段
     protected $deleteTime = 'delete_time';
@@ -64,6 +64,12 @@ class User extends Model
         return User::create($data)->user_id;
     }
 
+    /**
+     * 更新用户信息
+     * @param int $user_id
+     * @param array $data
+     * @return int|string
+     */
     public function updateUser($user_id = 0, $data = array()) {
         if(!$user_id || !$data) {
             exception('User Model updateUser data为空');

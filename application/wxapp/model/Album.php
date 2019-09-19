@@ -13,9 +13,8 @@ use think\model\concern\SoftDelete;
 
 class Album extends Model
 {
-
-    // 主键id名
     use SoftDelete;
+    // 主键id名
     protected $pk = 'album_id';
     // 软删除字段
     protected $deleteTime = 'delete_time';
@@ -25,7 +24,6 @@ class Album extends Model
      * @return mixed
      */
     public function listAlbum($data = array(), $page = 1, $pageSize = 20) {
-//        return Album::page($page,$pageSize)->all($data);
         return Album::where('is_private','neq',1)->page($page,$pageSize)->order(array('create_time' => 'desc','album_id' => 'desc'))->all($data);
     }
 
@@ -108,6 +106,11 @@ class Album extends Model
         return Album::order(array('create_time' => 'desc','album_id' => 'desc'))->select($data);
     }
 
+    /**
+     * 创建图册
+     * @param array $data
+     * @return mixed
+     */
     public function saveAlbum($data = array()) {
         if(!$data) {
             exception('Album Model saveAlbum 数据为空');
@@ -117,6 +120,12 @@ class Album extends Model
         return $album->album_id;
     }
 
+    /**
+     * 跟新图册信息
+     * @param int $album_id
+     * @param array $data
+     * @return int|string
+     */
     public function updateAlbum($album_id = 0 ,$data = array()) {
         if(!$album_id || !$data) {
             exception('Album Model updateAlbum 数据为空');

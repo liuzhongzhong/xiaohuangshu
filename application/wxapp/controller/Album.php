@@ -55,18 +55,20 @@ class Album extends Controller
                 $albums[$index]['is_collect'] = 0;
             }
             if($item['cover_url'] =='' || $item['cover_url'] == null || !$item['cover_url']) {
-
                 $cover_image = model('image')->getCoverImage($item['album_id']);
                 if($cover_image) {
                     $albums[$index]['cover_url'] = $cover_image['image_url'];
                 }
             }
             $albums[$index]['photo_num'] = model('image')->getImageCount($item['album_id']);
-
         }
         return $albums;
     }
 
+    /**
+     * 获取单个图册信息
+     * @return \think\response\Json
+     */
     public function getAlbum() {
         $user_id = input('get.user_id/d',0);
         $album_id = input('get.album_id/d',0);
@@ -85,6 +87,7 @@ class Album extends Controller
                 'data' => array(),
             ));
         }
+
         // 获取图册信息
         $albumInfo = model('album')->getAlbum($album_id);
         return json(array(
@@ -97,7 +100,7 @@ class Album extends Controller
     }
 
     /**
-     * 删除图册
+     * 删除某个图册
      * @return \think\response\Json
      */
     public function deleteAlbum() {
@@ -118,6 +121,7 @@ class Album extends Controller
                 'data' => array(),
             ));
         }
+
         // 删除图册信息
         $deleteAlbum = model('album')->deleteAlbum($album_id);
         return json(array(
@@ -130,14 +134,13 @@ class Album extends Controller
     }
 
     /**
-     * 关注/取消关注
+     * 关注/取消关注图册
      * @return \think\response\Json
      */
     public function updateIsLike() {
         $returnData = array();
         $user_id = input('put.user_id/d',0);
         $album_id = input('put.album_id/d',0);
-
 
         if(!$user_id) {
             return json(array(
@@ -153,6 +156,7 @@ class Album extends Controller
                 'data' => array(),
             ));
         }
+
         // 查询现有关注关系
         $isLike = model('relalike')->getRelaLike($user_id,$album_id);
         if($isLike) {
@@ -209,9 +213,8 @@ class Album extends Controller
         return json($returnData);
     }
 
-
     /**
-     * 图册查看次数自增
+     * 自增图册查看次数
      * @return \think\response\Json
      */
     public function updateViewNum() {
@@ -223,6 +226,7 @@ class Album extends Controller
                 'data' => array(),
             ));
         }
+        // 查看次数加1
         $updateViewNum = model('album')->updateAlbumFiledInc($album_id,'view_num');
         return json(array(
             'code' => 201,
@@ -234,7 +238,7 @@ class Album extends Controller
     }
 
     /**
-     * 获取用户相册列表
+     * 获取某用户的相册列表
      * @return \think\response\Json
      */
     public function listUserAlbum() {
@@ -333,8 +337,6 @@ class Album extends Controller
                 'message' => '未有关注图册',
             ));
         }
-
-
     }
 
     /**
@@ -384,7 +386,7 @@ class Album extends Controller
     }
 
     /**
-     *
+     * 获取专题图册列表
      * @return \think\response\Json
      */
     public function listRelaSubjectAlbum() {
@@ -392,18 +394,15 @@ class Album extends Controller
         $subject_id = input('get.subject_id/d',1);
         $page = input('get.page/d',1);
         $pageSize = input('get.pageSize/d',10);
-
         $userLikes = array();
+
         // 获取关联信息
         $relaAlbumList  = model('Relasubject')->listRelaSubject($subject_id,$page,$pageSize);
-
         if($relaAlbumList) {
             // 获取z专题的图册ID
             $albumIdList = array_unique(array_column(json_decode($relaAlbumList,true),'album_id'));
             // 根据图册ID批量获取图册列表
             $albumList = model('album')->listAlbumByIDS($albumIdList);
-
-
             foreach ($albumList as $index => $item) {
                 if($item['cover_url'] =='' || $item['cover_url'] == null || !$item['cover_url']) {
                     $cover_image = model('image')->getCoverImage($item['album_id']);
@@ -435,6 +434,10 @@ class Album extends Controller
         }
     }
 
+    /**
+     * 创建一个图册
+     * @return \think\response\Json
+     */
     public function saveAlbum() {
         $user_id = input('post.user_id/d',13);
         $is_private = input('post.is_private/d',0);
@@ -448,7 +451,6 @@ class Album extends Controller
                 'message' => '用户ID获取失败',
             ));
         }
-
         if(!$name) {
             return json(array(
                 'code' => 400,
@@ -465,7 +467,6 @@ class Album extends Controller
         );
 
         $album_id = model('album')->saveAlbum($albumData);
-
         if($album_id) {
             return json(array(
                 'code' => 200,
@@ -483,7 +484,7 @@ class Album extends Controller
     }
 
     /**
-     * 更新相册信息
+     * 更新图册信息
      * @return \think\response\Json
      */
     public function updateAlbum() {
@@ -500,14 +501,12 @@ class Album extends Controller
                 'message' => '用户ID获取失败',
             ));
         }
-
         if(!$album_id) {
             return json(array(
                 'code' => 400,
                 'message' => '图册ID获取失败',
             ));
         }
-
         if(!$name) {
             return json(array(
                 'code' => 400,
@@ -541,7 +540,6 @@ class Album extends Controller
         }
     }
 
-
     /**
      * 修改图册封面照片
      * @return \think\response\Json
@@ -557,21 +555,18 @@ class Album extends Controller
                 'message' => '用户ID获取失败',
             ));
         }
-
         if(!$album_id) {
             return json(array(
                 'code' => 400,
                 'message' => '图册ID获取失败',
             ));
         }
-
         if(!$image_id) {
             return json(array(
                 'code' => 400,
                 'message' => '图片ID获取失败',
             ));
         }
-
 
         // 根据图片ID获取图片信息
         $imageInfo = model('image')->getImage($image_id);
@@ -587,7 +582,6 @@ class Album extends Controller
         );
         // 更新图册信息
         $album_id = model('album')->updateAlbum($album_id,$albumData);
-
         if($album_id) {
             return json(array(
                 'code' => 200,
@@ -603,5 +597,4 @@ class Album extends Controller
             ));
         }
     }
-
 }

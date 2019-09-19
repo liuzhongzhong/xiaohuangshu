@@ -15,7 +15,11 @@ use Qiniu\Storage\UploadManager;
 
 class Qiniu
 {
-
+    /**
+     * 上传图片至七牛云
+     * @param array $file
+     * @return array
+     */
     public function uploadImage($file = array()) {
         if(!$file) {
             return array(
@@ -77,7 +81,11 @@ class Qiniu
         }
     }
 
-    // 删除文件
+    /**
+     * 删除七牛云中图片
+     * @param string $key
+     * @return array
+     */
     public function deleteImage($key = '') {
         // 初始化签权对象
         $auth = new Auth(config('qiniu')['access_key'], config('qiniu')['secret_key']);

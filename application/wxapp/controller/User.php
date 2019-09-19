@@ -14,6 +14,7 @@ use app\wxapp\common;
 
 class User extends Controller
 {
+    // 小程序用户登录
     public function Login() {
         $code = input('post.code/s','','htmlspecialchars');
         $wxLogin = new common\Wxlogin();
@@ -24,6 +25,7 @@ class User extends Controller
                 'message' => '登录失败',
             ));
         }
+
         // 判断是否存在该用户，有则更新，无则新建
         $hasUser = model('user')->getUserByOpenID($wxLoginInfo['openid']);
         if(!$hasUser) {
@@ -70,8 +72,8 @@ class User extends Controller
         // 获取用户信息
         $oldUserInfo = model('user')->getUser($user_id);
         $oldUserInfo = json_decode($oldUserInfo,true);
-        // 比较是否内容相同
 
+        // 比较是否内容相同
         if($oldUserInfo['nickName'] == $userInfo['nickName'] &&
             $oldUserInfo['gender'] == $userInfo['gender'] &&
             $oldUserInfo['language'] == $userInfo['language'] &&

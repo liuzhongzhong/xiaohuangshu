@@ -19,6 +19,10 @@ class Subject extends Model
     // 软删除字段
     protected $deleteTime = 'delete_time';
 
+    /**
+     * 获取所有专题列表
+     * @return mixed
+     */
     public function listSubject() {
         return Subject::all();
     }

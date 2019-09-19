@@ -38,7 +38,6 @@ class Wxpay
         $advanceResult = $this->http(config('wxpay_api')['unifiedorder'],$advanceData,'POST',array("Content-Type: text/html"),true);
         //  将XML格式数据解析为数组
         $advanceResult = $this->xmlToArray($advanceResult);
-
         // 请求结果判断
         if($advanceResult['return_code'] == 'FAIL') {
             // 统一下单接口调取失败

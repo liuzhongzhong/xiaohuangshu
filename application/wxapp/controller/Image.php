@@ -44,6 +44,7 @@ class Image extends Controller
 
         $albumInfo['user_name'] = $userInfo['nickName'];
         $albumInfo['avatar_url'] = $userInfo['avatarUrl'];
+
         if($relaLike) {
             $albumInfo['is_collect'] = 1;
         }else {
@@ -51,19 +52,16 @@ class Image extends Controller
         }
 
         if($albumInfo['cover_url'] =='' || $albumInfo['cover_url'] == null || !$albumInfo['cover_url']) {
-
             $cover_image = model('image')->getCoverImage($albumInfo['album_id']);
             if($cover_image) {
                 $albumInfo['cover_url'] = $cover_image['image_url'];
             }
         }
-        
 
         // 获取图片列表
         $imageList = model('image')->listImages($album_id,$page,$pageSize);
 
         // 判断是否付费相册
-//        $albumInfo = model('album')->getAlbum($album_id);
         if($albumInfo['is_pay'] == 1 && $user_id != $albumInfo['user_id']) {
             // 付费相册
             $payAlbum = 1;
@@ -158,7 +156,6 @@ class Image extends Controller
                 'data' => array(),
             ));
         }
-
     }
 
     /**
@@ -171,7 +168,7 @@ class Image extends Controller
             $imageInfo = getimagesize($value['image_url']);
             $saveAllImage = model('image')->updateImages($value['image_id'],array('width' => $imageInfo[0],'height' => $imageInfo[1]));
         }
-        print_r($imageList);
+        var_dump($imageList);
     }
 
     /**
@@ -235,8 +232,11 @@ class Image extends Controller
         ));
     }
 
+    /**
+     * 上传图片至七牛云
+     * @return \think\response\Json
+     */
     public function uploadImage() {
-
         // 实例化上传对象信息
         $file = request()->file('image');
         $album_id = input('post.album_id/d',2);
@@ -261,6 +261,7 @@ class Image extends Controller
             'width' => $imageWidth,
             'height' => $imageHeight,
         );
+
         // 图片信息保存到数据库中
         $saveImage = model('image')->saveImage($imageData);
         $albumCoverImage = model('album')->getAlbum($album_id);
@@ -285,12 +286,19 @@ class Image extends Controller
         ));
     }
 
+    /**
+     * 删除七牛云中图片
+     */
     public function deleteImage() {
         $image_name = 'album/20190904/e33fa201909041447137758.PNG';
         $qiniu = new model\Qiniu();
         $imageInfo = $qiniu->deleteImage($image_name);
     }
 
+    /**
+     * 批量删除图册中图片
+     * @return \think\response\Json
+     */
     public function deleteImages() {
         $user_id = input('delete.user_id/d',0);
         $album_id = input('delete.album_id/d',0);

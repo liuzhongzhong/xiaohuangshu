@@ -14,8 +14,8 @@ use think\model\concern\SoftDelete;
 
 class Image extends Model
 {
-    // 主键id名
     use SoftDelete;
+    // 主键id名
     protected $pk = 'image_id';
     // 软删除字段
     protected $deleteTime = 'delete_time';
@@ -76,7 +76,6 @@ class Image extends Model
         if(!$data) {
             exception('Image Model saveImage 数据为空');
         }
-//        return Image::insertGetId($data);
         $image = new Image();
         $image->save($data);
         return $image->image_id;
@@ -114,6 +113,11 @@ class Image extends Model
         }
     }
 
+    /**
+     * 获取图册中图片数量
+     * @param int $album_id
+     * @return float|string
+     */
     public function getImageCount($album_id = 0) {
         if(!$album_id) {
             exception('Image Model getImageCount ID为空');
