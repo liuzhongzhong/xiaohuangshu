@@ -61,7 +61,7 @@ class Image extends Controller
                 if(substr($cover_image['image_url'],0,12) == 'http://image') {
                     $albumInfo['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list');
                 }else {
-                    $albumInfo['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_alioss');
+                    $albumInfo['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_txcos');
                 }
 
 
@@ -73,14 +73,14 @@ class Image extends Controller
             if(substr($albumInfo['cover_url'],0,12) == 'http://image') {
                 $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list');
             }else {
-                $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list_alioss');
+                $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list_txcos');
             }
 
             if($albumInfo['cover_url_bak'] != null || $albumInfo['cover_url_bak'] != '') {
                 if(substr($albumInfo['cover_url_bak'],0,12) == 'http://image') {
                     $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list');
                 }else {
-                    $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list_alioss');
+                    $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list_txcos');
                 }
 
             }
@@ -125,7 +125,7 @@ class Image extends Controller
                             if(substr($value['image_url'],0,12) == 'http://image') {
                                 $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                             }else {
-                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                             }
 
                         }else {
@@ -134,7 +134,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                                 }
                             }else {
                                 if(substr($value['image_url'],0,12) == 'http://image') {
@@ -151,7 +151,7 @@ class Image extends Controller
                             if(substr($value['image_url'],0,12) == 'http://image') {
                                 $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                             }else {
-                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                             }
                         }else {
                             // 未分享
@@ -159,7 +159,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                                 }
                             }else {
                                 if(substr($value['image_url'],0,12) == 'http://image') {
@@ -176,7 +176,7 @@ class Image extends Controller
                             if(substr($value['image_url'],0,12) == 'http://image') {
                                 $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                             }else {
-                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                             }
                         }else {
                             // 未付费
@@ -184,7 +184,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                                 }
                             }else {
                                 if(substr($value['image_url'],0,12) == 'http://image') {
@@ -200,7 +200,7 @@ class Image extends Controller
                     if(substr($value['image_url'],0,12) == 'http://image') {
                         $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
                     }else {
-                        $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                        $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_txcos');
                     }
                 }
                 if($key%2 == 0) {
@@ -322,7 +322,7 @@ class Image extends Controller
                         if(substr($imageUrlList[$index],0,12) == 'http://image') {
                             $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                         }else {
-                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                         }
 
                     }else {
@@ -331,7 +331,7 @@ class Image extends Controller
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
                                 $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                             }else {
-                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                             }
                         }else {
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
@@ -348,7 +348,7 @@ class Image extends Controller
                         if(substr($imageUrlList[$index],0,12) == 'http://image') {
                             $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                         }else {
-                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                         }
                     }else {
                         // 未付费
@@ -356,7 +356,7 @@ class Image extends Controller
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
                                 $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                             }else {
-                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                             }
                         }else {
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
@@ -373,7 +373,7 @@ class Image extends Controller
                         if(substr($imageUrlList[$index],0,12) == 'http://image') {
                             $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                         }else {
-                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                         }
                     }else {
                         // 未付费
@@ -381,7 +381,7 @@ class Image extends Controller
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
                                 $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                             }else {
-                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                             }
                         }else {
                             if(substr($imageUrlList[$index],0,12) == 'http://image') {
@@ -398,7 +398,7 @@ class Image extends Controller
                 if(substr($imageUrlList[$index],0,12) == 'http://image') {
                     $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
                 }else {
-                    $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                    $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_txcos');
                 }
 
             }

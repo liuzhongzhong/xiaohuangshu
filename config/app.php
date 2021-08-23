@@ -156,8 +156,10 @@ return [
     'blur_image_alioss' => 'x-oss-process=style/fuzzy_graph',
     'blur_list_alioss' => 'x-oss-process=style/fuzzy_list',
 
+    'custom_list_txcos' => 'imageMogr2/format/webp',
+    'custom_image_txcos' => 'imageMogr2/format/webp',
     'blur_image_txcos' => 'imageMogr2/blur/30x5',
-    'blur_list_txcos' => 'imageMogr2/blur/15x2',
+    'blur_list_txcos' => 'imageMogr2/format/webp/blur/15x2',
 
 
     // 微信小程序信息

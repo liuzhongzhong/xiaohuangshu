@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fcdad891-92fd-4b05-a00c-e5273d6f1489" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/wxapp/controller/Image.php" beforeDir="false" afterPath="$PROJECT_DIR$/application/wxapp/controller/Image.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/app.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -338,7 +340,7 @@
       <workItem from="1629479834745" duration="264000" />
       <workItem from="1629480183386" duration="7653000" />
       <workItem from="1629530014228" duration="2965000" />
-      <workItem from="1629643967543" duration="11187000" />
+      <workItem from="1629643967543" duration="11634000" />
     </task>
     <servers />
   </component>
