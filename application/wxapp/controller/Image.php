@@ -140,7 +140,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_txcos');
                                 }
                             }
                         }
@@ -165,7 +165,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_txcos');
                                 }
                             }
                         }
@@ -190,7 +190,7 @@ class Image extends Controller
                                 if(substr($value['image_url'],0,12) == 'http://image') {
                                     $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
                                 }else {
-                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_txcos');
                                 }
                             }
                         }
