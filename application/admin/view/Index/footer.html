@@ -1,0 +1,109 @@
+
+<div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 3 -->
+<script src="/static/AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="/static/AdminLTE/bower_components/jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+    $.widget.bridge('uibutton', $.ui.button);
+</script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/static/AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- DataTables -->
+<script src="/static/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="/static/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+<script src="/static/AdminLTE/bower_components/datatables-responsive/dataTables.responsive.js"></script>
+<!-- Morris.js charts -->
+<script src="/static/AdminLTE/bower_components/raphael/raphael.min.js"></script>
+<script src="/static/AdminLTE/bower_components/morris.js/morris.min.js"></script>
+<!-- Sparkline -->
+<script src="/static/AdminLTE/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+<!-- jvectormap -->
+<script src="/static/AdminLTE/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="/static/AdminLTE/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="/static/AdminLTE/bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="/static/AdminLTE/bower_components/moment/min/moment.min.js"></script>
+<script src="/static/AdminLTE/bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<!-- datepicker -->
+<script src="/static/AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+<script src="/static/Plugin/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+<!--datetimepicker-->
+<script src="/static/AdminLTE/bower_components/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="/static/AdminLTE/bower_components/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+<!-- Bootstrap WYSIHTML5 -->
+<script src="/static/AdminLTE/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+<!-- Slimscroll -->
+<script src="/static/AdminLTE/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<!-- FastClick -->
+<script src="/static/AdminLTE/bower_components/fastclick/lib/fastclick.js"></script>
+<!-- AdminLTE App -->
+<script src="/static/AdminLTE/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="/static/AdminLTE/dist/js/pages/dashboard.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="/static/Plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script src="/static/Plugin/bootstrap-select/js/i18n/defaults-zh_CN.min.js"></script>
+
+<script src="/static/Plugin/bootstrap-fileinput/js/fileinput.js"></script>
+<script src="/static/Plugin/bootstrap-fileinput/js/locales/zh.js"></script>
+
+<script src="/static/Dialog/layer/layer.js"></script>
+<script src="/static/Dialog/dialog.js"></script>
+
+<script src="/static/AdminLTE/dist/js/demo.js"></script>
+<script src="/static/Home/js/common.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#example1').DataTable({
+            language: {
+                "sProcessing": "处理中...",
+                "sLengthMenu": "显示 _MENU_ 项结果",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix": "",
+                "sSearch": "搜索:",
+                "sUrl": "",
+                "sEmptyTable": "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands": ",",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上页",
+                    "sNext": "下页",
+                    "sLast": "末页"
+                },
+                "oAria": {
+                    "sSortAscending": ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+
+            },
+            /*responsive: true,    //自适应
+            paging: true,       //分页
+            searching:true,    //搜索
+            ordering:true,     //排序
+            info:true,         //信息
+            lengthChange: true,
+            autoWidth   : false,*/
+
+            responsive: true,    //自适应
+            paging: false,       //分页
+            searching:false,    //搜索
+            ordering:false,     //排序
+            info:false,         //信息
+            lengthChange: true,
+            autoWidth   : false,
+
+        });
+    });
+</script>
+</body>
+</html>

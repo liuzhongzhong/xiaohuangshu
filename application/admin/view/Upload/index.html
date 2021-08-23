@@ -1,0 +1,64 @@
+{include file="../application/admin/view/Index/header.html" /}
+{include file="../application/admin/view/Index/nav.html" /}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-8">
+                <!-- /.box -->
+                <!-- general form elements disabled -->
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">批量上传</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <form role="form" id="upload-form">
+                            <!-- text input -->
+                            <div class="form-group col-lg-12">
+                                <label>图册名称</label>
+                                <select class="form-control selectpicker show-tick" data-live-search="true" title="请选择一个图册" data-size="8" id="album_id" name="album_id">
+                                    {volist name="albums" id="item"}
+                                    <option value="{$item.album_id}">{$item.name}</option>
+                                    {/volist}
+
+                                </select>
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <label>上传图册照片（可多张）</label>
+                                <input id="file-0c" class="file" type="file" name="image" multiple data-preview-file-type="any">
+                            </div>
+                            <div id="hide-image-div">
+                            </div>
+                            <div class="form-group col-lg-12">
+                                <button type="button" class="btn btn-primary btn-block" id="upload-button" attr-m="admin" attr-c="upload" attr-a="upload"><i class="fa fa-check"></i>&nbsp;确认提交</button>
+                            </div>
+
+
+                        </form>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <div class="col-md-2">
+
+            </div>
+            <!--/.col (right) -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+{include file="../application/admin/view/Index/footer.html" /}

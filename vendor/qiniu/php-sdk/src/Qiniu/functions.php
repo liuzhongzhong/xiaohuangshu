@@ -65,6 +65,23 @@ if (!defined('QINIU_FUNCTIONS_VERSION')) {
     }
 
     /**
+     * 二维数组根据某个字段排序
+     * @param array $array 要排序的数组
+     * @param string $key 要排序的键
+     * @param string $sort  排序类型 SORT_ASC SORT_DESC
+     * return array 排序后的数组
+     */
+    function arraySort($array, $key, $sort = SORT_ASC)
+    {
+        $keysValue = array();
+        foreach ($array as $k => $v) {
+            $keysValue[$k] = $v[$key];
+        }
+        array_multisort($keysValue, $sort, $array);
+        return $array;
+    }
+
+    /**
      * Wrapper for JSON decode that implements error detection with helpful
      * error messages.
      *
@@ -108,8 +125,8 @@ if (!defined('QINIU_FUNCTIONS_VERSION')) {
     /**
      * 计算七牛API中的数据格式
      *
-     * @param $bucket 待操作的空间名
-     * @param $key 待操作的文件名
+     * @param string $bucket 待操作的空间名
+     * @param string $key 待操作的文件名
      *
      * @return string  符合七牛API规格的数据格式
      * @link http://developer.qiniu.com/docs/v6/api/reference/data-formats.html
@@ -126,9 +143,9 @@ if (!defined('QINIU_FUNCTIONS_VERSION')) {
     /**
      * array 辅助方法，无值时不set
      *
-     * @param $array 待操作array
-     * @param $key key
-     * @param $value value 为null时 不设置
+     * @param array $array 待操作array
+     * @param string $key key
+     * @param string $value value 为null时 不设置
      *
      * @return array 原来的array，便于连续操作
      */

@@ -19,7 +19,7 @@ return [
     // 应用地址
     'app_host'               => '',
     // 应用调试模式
-    'app_debug'              => false,
+    'app_debug'              => true,
     // 应用Trace
     'app_trace'              => false,
     // 是否支持多模块
@@ -144,22 +144,36 @@ return [
     'exception_handle'       => '',
 
     // 图片处理接口参数
-    'custom_list' => 'imageMogr/v2/auto-orient/thumbnail/!80p/quality/80/interlace/1|imageslim',
+    'custom_list' => 'imageMogr/v2/auto-orient/thumbnail/!80p/quality/60/interlace/1|imageslim',
     'custom_image' => 'imageMogr/v2/auto-orient/quality/100/interlace/1|imageslim',
-    'blur_image' => 'imageMogr/v2/auto-orient/blur/30x200/quality/100/interlace/1|imageslim',
-    'blur_list' => 'imageMogr/v2/auto-orient/thumbnail/!80p/blur/20x200/quality/80/interlace/1|imageslim',
+    'blur_image' => 'imageMogr/v2/auto-orient/blur/30x200/quality/80/interlace/1|imageslim',
+    'blur_list' => 'imageMogr/v2/auto-orient/thumbnail/!80p/blur/20x200/quality/50/interlace/1|imageslim',
     'watermark' => 'imageView2/0/q/75|watermark/2/text/5omT6LWP5p-l55yL6auY5riF5Zu-5YaM/font/5b6u6L2v6ZuF6buR/fontsize/800/fill/I0ZGRkZGRg==/dissolve/100/gravity/Center/dx/10/dy/10|imageslim',
     'slim_image' => '|imageslim',
 
+    'custom_list_alioss' => 'x-oss-process=style/general_list',
+    'custom_image_alioss' => 'x-oss-process=style/original_graph',
+    'blur_image_alioss' => 'x-oss-process=style/fuzzy_graph',
+    'blur_list_alioss' => 'x-oss-process=style/fuzzy_list',
+
+    'blur_image_txcos' => 'imageMogr2/blur/30x5',
+
+
     // 微信小程序信息
     'wechat_small_application' => array(
-        'appid' => 'wx720d2b385a0b4146',
-        'appsecret' => '316d60b9f737a1fad4d1dc9d7b8aa932',
+        'appid' => 'wxe830310b5e068d6e',
+        'appsecret' => '4ba63832260e963cc61069da4191de32',
     ),
+
+    /*// 微信商户号
+    'wechat_pay' => array(
+        'account' => '1544669891',  // 微信商户号
+        'secret' => 'WxczTmhXrAmqUBBrrggmZc285sXa99vN',  //微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
+    ),*/
 
     // 微信商户号
     'wechat_pay' => array(
-        'account' => '1544669891',  // 微信商户号
+        'account' => '1611631681',  // 微信商户号
         'secret' => 'WxczTmhXrAmqUBBrrggmZc285sXa99vN',  //微信商户平台(pay.weixin.qq.com)-->账户设置-->API安全-->密钥设置
     ),
 
@@ -169,14 +183,41 @@ return [
         'notify_url' => 'http://www.weixin.qq.com/wxpay/pay.php',   // 回调地址
     ),
 
-    // 七牛云秘钥
+    /*//七牛云秘钥
     'qiniu' => array(
         'access_key' => 'VrKJPcQnEVCE2uav-EGcIOkrCitcFlvsT2Gb94Ka',
         'secret_key' => 'AnZn9ccvgViG88qjuTmkz14O9Ql5xO-0dKUBTHGw',
         'bucket_name' => 'xiaohuangshu',
         'prefix_name' => 'album',
         'prefix_url' => 'http://image.xiaohuangshu.xianshikeji.com/',
+    ),*/
+
+    // 七牛云秘钥
+    'qiniu' => array(
+        'access_key' => 'MgkXrkN4SbMHwRIhveKZVC524NMNJ1MHnIs7--UA',
+        'secret_key' => 'GDBut87QJRCkia88VTZphZ4LnTgIbCImLd_-WqI5',
+        'bucket_name' => 'xiaohuangshu2',
+        'prefix_name' => 'album',
+        'prefix_url' => 'http://image.lzz.l0v3.cn/',
     ),
+
+    //阿里云OSS配置
+    'alioss'        =>[
+        'KeyId'      => 'LTAI4FpK7mKriRP9rLnhtPFM',  //AccessKey ID
+        'KeySecret'  => 'ZaTaEsC4kisPM3wVX5HE6n1YMDJ2bf ',  //Access Key Secret
+        'EndPoint'   => 'oss-cn-beijing.aliyuncs.com',  //外网访问节点
+        'Bucket'     => 'sams-member',  //Bucket名称
+        'url'        => 'http://sams-member.oss-cn-beijing.aliyuncs.com/',
+    ],
+
+    //腾讯云OSS配置
+    'txcos'        =>[
+        'secretId'      => 'AKIDJOAb3DvX1D8lGmAyfOq2wfV4LMOBNtiW',  //云API密钥 SecretId
+        'secretKey'  => 'g5KcdNprrHS0ZwlT2LPDk7GAxub16yZt',  //云API密钥 SecretKey
+        'region'   => 'ap-shanghai',  //存储桶地域
+        'bucket'     => 'sexbook-1258218746',  //Bucket名称
+        'url'        => 'http://sexbook-1258218746.cos.ap-shanghai.myqcloud.com/',
+    ],
 
 ];
 

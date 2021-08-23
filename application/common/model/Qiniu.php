@@ -30,7 +30,7 @@ class Qiniu
         // 获取上传图片文件及路径信息
         $fileInfo = $this->getFileInfo($file);
         // 获取上传服务器后文件信息
-        $imageInfo = $this->uploadTOServer($fileInfo['key'],$fileInfo['filePath']);
+        $imageInfo = $this->uploadToServer($fileInfo['key'],$fileInfo['filePath']);
         // 返回数据
         return array(
             'code' => 1,
@@ -64,7 +64,7 @@ class Qiniu
      * @param string $filePath
      * @return int|string
      */
-    protected function uploadTOServer($key = '', $filePath = '') {
+    protected function uploadToServer($key = '', $filePath = '') {
         // 初始化签权对象
         $auth = new Auth(config('qiniu')['access_key'], config('qiniu')['secret_key']);
         // 生成上传Token

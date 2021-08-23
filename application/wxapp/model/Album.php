@@ -23,8 +23,34 @@ class Album extends Model
      * 获取所有相册信息
      * @return mixed
      */
-    public function listAlbum($data = array(), $page = 1, $pageSize = 20) {
-        return Album::where('is_private','neq',1)->page($page,$pageSize)->order(array('create_time' => 'desc','album_id' => 'desc'))->all($data);
+    public function listAlbum($data = array(), $page = 1, $pageSize = 20,$disabledAlbum = 0) {
+//        $orderCondition = array(
+//            'recommend_num' => 'desc',
+//            'pay_num' => 'desc',
+//            'like_num' => 'desc',
+//            'view_num' => 'desc',
+//            'create_time' => 'desc',
+//            'album_id' => 'desc'
+//        );
+//        return Album::where('is_private','neq',1)->page($page,$pageSize)->order($orderCondition)->all($data);
+        if($disabledAlbum == 0) {
+            $unionLeft = 'select * from album where create_time >= DATE_SUB(NOW(),INTERVAL 7 DAY) AND is_private != 1 AND delete_time IS NULL OR recommend_num > 0 ORDER BY recommend_num DESC,update_time DESC, create_time DESC, like_num DESC, view_num DESC limit 999999999';
+            $unionRight = 'select * from album where create_time < DATE_SUB(NOW(),INTERVAL 7 DAY) AND is_private != 1 AND delete_time IS NULL AND recommend_num = 0 ORDER BY like_num DESC, view_num DESC,update_time DESC,create_time DESC limit 999999999';
+        }else {
+            $unionLeft = 'select * from album where create_time >= DATE_SUB(NOW(),INTERVAL 7 DAY) AND disabled != 1 AND is_private != 1 AND delete_time IS NULL OR recommend_num > 0 ORDER BY recommend_num DESC,update_time DESC, create_time DESC, like_num DESC, view_num DESC limit 999999999';
+            $unionRight = 'select * from album where create_time < DATE_SUB(NOW(),INTERVAL 7 DAY) AND disabled != 1 AND is_private != 1 AND delete_time IS NULL AND recommend_num = 0 ORDER BY like_num DESC, view_num DESC,update_time DESC,create_time DESC limit 999999999';
+        }
+
+        $albumData =  Album::union([$unionLeft,$unionRight],true)->where('is_private','eq',2)->page($page,$pageSize)->select();
+        return $albumData;
+
+        /**
+         * select * from (
+        (select * from album where create_time >= DATE_SUB(NOW(),INTERVAL 7 DAY) OR recommend_num > 0 ORDER BY recommend_num DESC, create_time DESC, like_num DESC, view_num DESC limit 999999999)
+        UNION ALL
+        (select * from album where create_time < DATE_SUB(NOW(),INTERVAL 7 DAY) AND recommend_num = 0 ORDER BY like_num DESC, view_num DESC,create_time DESC limit 999999999)
+        ) tab where tab.is_private != 1 AND `delete_time` IS NULL LIMIT 0,10 ;
+         */
     }
 
     /**
@@ -93,7 +119,7 @@ class Album extends Model
         if(!$user_id) {
             exception('Album Model listUserAlbum 数据为空');
         }else {
-            return Album::where('user_id',$user_id)->page($page,$pageSize)->order(array('create_time' => 'desc','album_id' => 'desc'))->select();
+            return Album::where('user_id',$user_id)->page($page,$pageSize)->order(array('update_time' => 'desc','create_time' => 'desc','album_id' => 'desc'))->select();
         }
     }
 
@@ -102,8 +128,29 @@ class Album extends Model
      * @param array $data
      * @return mixed
      */
-    public function listAlbumByIDS($data = array()) {
-        return Album::order(array('create_time' => 'desc','album_id' => 'desc'))->select($data);
+    public function listAlbumByIDS($data = array(),$neq = 0,$disabledAlbum = 0) {
+        $orderCondition = array(
+            'recommend_num' => 'desc',
+            'like_num' => 'desc',
+            'view_num' => 'desc',
+            'update_time' => 'desc',
+            'create_time' => 'desc',
+            'album_id' => 'desc'
+        );
+        $condition = [];
+        if($disabledAlbum == 1) {
+            $condition[]=['disabled','neq',1];
+        }
+
+        if($neq != 0) {
+            $condition[]=['is_private','neq',1];
+            $resault = Album::where($condition)->order($orderCondition)->select($data);
+        }else {
+            $resault = Album::where($condition)->order($orderCondition)->select($data);
+        }
+
+        return $resault;
+
     }
 
     /**
@@ -121,7 +168,7 @@ class Album extends Model
     }
 
     /**
-     * 跟新图册信息
+     * 更新图册信息
      * @param int $album_id
      * @param array $data
      * @return int|string
@@ -130,6 +177,8 @@ class Album extends Model
         if(!$album_id || !$data) {
             exception('Album Model updateAlbum 数据为空');
         }
-        return Album::where('album_id',$album_id)->update($data);
+        $value = Album::where('album_id',$album_id)->update($data);
+        return $value;
+
     }
 }

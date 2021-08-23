@@ -18,12 +18,20 @@ class Album extends Controller
     public function listAlbum() {
         $user_id = input('get.user_id/d',0);
         $userLikes = array();
+
+        // 获取是否隐藏相册
+        $disabledAlbum = model('general')->listGeneral();
+
         // 获取图册列表
-        $albums = model('album')->listAlbum(array(),input('get.page/d',1),input('get.pageSize/d',20));
+        $albums = model('album')->listAlbum(array(),input('get.page/d',1),input('get.pageSize/d',20),$disabledAlbum[0]['value']);
 
         // 获取图册相关用户列表
         $userIdList = array_unique(array_column(json_decode($albums),'user_id'));
         $users = model('user')->listUser($userIdList);
+
+        // 获取图册相关虚拟用户列表
+        $virtualUserIdList = array_unique(array_column(json_decode($albums),'virtual_user'));
+        $virtualUsers = model('virtualuser')->listUser($virtualUserIdList);
 
         // 获取当前登录用户的图册关注数据
         if($user_id) {
@@ -35,31 +43,70 @@ class Album extends Controller
         foreach ($albums as $index => $item) {
             $findLikes = 0;
             // 将用户姓名、头像写入图册中
-            foreach ($users as $key => $value) {
-                if($item['user_id'] == $value['user_id']) {
-                    $albums[$index]['user_id'] = $value['user_id'];
-                    $albums[$index]['user_name'] = $value['nickName'];
-                    $albums[$index]['avatar_url'] = $value['avatarUrl'];
+            if($albums[$index]['virtual_user'] == 0) {
+                // 真实用户
+                foreach ($users as $key => $value) {
+                    if($item['user_id'] == $value['user_id']) {
+                        $albums[$index]['user_type'] = 0; //真实用户
+                        $albums[$index]['user_id'] = $value['user_id'];
+                        $albums[$index]['user_name'] = $value['nickName'];
+                        $albums[$index]['avatar_url'] = $value['avatarUrl'];
+                        break;
+                    }
+                }
+            }else {
+                // 虚拟用户
+                foreach ($virtualUsers as $key => $value) {
+                    if($item['virtual_user'] == $value['user_id']) {
+                        $albums[$index]['user_type'] = 1; //虚拟用户
+                        $albums[$index]['user_id'] = $value['user_id'];
+                        $albums[$index]['user_name'] = $value['nickName'];
+                        $albums[$index]['avatar_url'] = $value['avatarUrl'];
+                        break;
+                    }
                 }
             }
+
             // 将用户关注信息写入图册中
             foreach ($userLikes as $p => $q) {
                 if($item['album_id'] == $q['album_id']) {
                     // 关注
                     $albums[$index]['is_collect'] = 1;
                     $findLikes = 1;
+                    break;
                 }
             }
             if(!$findLikes) {
                 // 未关注
                 $albums[$index]['is_collect'] = 0;
             }
-            if($item['cover_url'] =='' || $item['cover_url'] == null || !$item['cover_url']) {
+            if($item['cover_url'] == '' || $item['cover_url'] == null || !$item['cover_url']) {
                 $cover_image = model('image')->getCoverImage($item['album_id']);
                 if($cover_image) {
-                    $albums[$index]['cover_url'] = $cover_image['image_url'];
+                    if(substr($cover_image['image_url'],0,12) == 'http://image') {
+                        $albums[$index]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list');
+                    }else {
+                        $albums[$index]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_alioss');
+                    }
+                    $albums[$index]['cover_url_width'] = $cover_image['width'];
+                    $albums[$index]['cover_url_height'] = $cover_image['height'];
+                }
+            }else {
+                // 优化图片体积
+                if(substr($item['cover_url'],0,12) == 'http://image') {
+                    $albums[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list');
+                }else {
+                    $albums[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list_alioss');
+                }
+                if($item['cover_url_bak'] != null || $item['cover_url_bak'] != '') {
+                    if(substr($item['cover_url_bak'],0,12) == 'http://image') {
+                        $albums[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list');
+                    }else {
+                        $albums[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list_alioss');
+                    }
                 }
             }
+            // 获取图册内图片数量
             $albums[$index]['photo_num'] = model('image')->getImageCount($item['album_id']);
         }
         return $albums;
@@ -90,6 +137,33 @@ class Album extends Controller
 
         // 获取图册信息
         $albumInfo = model('album')->getAlbum($album_id);
+        if(substr($albumInfo['cover_url'],0,12) == 'http://image') {
+            $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list');
+        }else {
+            $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list_alioss');
+        }
+
+        if($albumInfo['cover_url_bak'] != null || $albumInfo['cover_url_bak'] != '') {
+            if(substr($albumInfo['cover_url_bak'],0,12) == 'http://image') {
+                $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list');
+            }else {
+                $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list_alioss');
+            }
+        }
+        // 获取图册专题信息
+        $relaSubject = model('relasubject')->getRelaSubject($album_id);
+        $subjectIndex = -1;
+        if($relaSubject) {
+            // 获取专题信息
+            $subjectList = model('subject')->listSubject();
+            foreach ($subjectList as $index => $item) {
+                if($item['subject_id'] == $relaSubject['subject_id']) {
+                    $subjectIndex = $index;
+                    break;
+                }
+            }
+        }
+        $albumInfo['subjectIndex'] = ($subjectIndex == -1)? 0 : ($subjectIndex + 1);
         return json(array(
             'code' => 200,
             'message' => '图册信息获取成功',
@@ -256,7 +330,27 @@ class Album extends Controller
             if($item['cover_url'] =='' || $item['cover_url'] == null || !$item['cover_url']) {
                 $cover_image = model('image')->getCoverImage($item['album_id']);
                 if($cover_image) {
-                    $userAlbumList[$index]['cover_url'] = $cover_image['image_url'];
+                    if(substr($cover_image['image_url'],0,12) == 'http://image') {
+                        $userAlbumList[$index]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list');
+                    }else {
+                        $userAlbumList[$index]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_alioss');
+                    }
+
+                }
+            }else {
+                if(substr($item['cover_url'],0,12) == 'http://image') {
+                    $userAlbumList[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list');
+                }else {
+                    $userAlbumList[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list_alioss');
+                }
+
+                if($item['cover_url_bak'] != null || $item['cover_url_bak'] != '') {
+                    if(substr($item['cover_url_bak'],0,12) == 'http://image') {
+                        $userAlbumList[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list');
+                    }else {
+                        $userAlbumList[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list_alioss');
+                    }
+
                 }
             }
             $userAlbumList[$index]['photo_num'] = model('image')->getImageCount($item['album_id']);
@@ -292,13 +386,16 @@ class Album extends Controller
                 'message' => '用户ID获取失败',
             ));
         }
+
+        // 获取是否隐藏相册
+        $disabledAlbum = model('general')->listGeneral();
         // 获取关注记录
         $relaLike = model('relalike')->getUserRelaLike($user_id,$page,$pageSize);
         if($relaLike) {
             // 获取关注的图册ID
             $albumIdList = array_unique(array_column(json_decode($relaLike,true),'album_id'));
             // 根据图册ID批量获取图册列表
-            $albumList = model('album')->listAlbumByIDS($albumIdList);
+            $albumList = model('album')->listAlbumByIDS($albumIdList,0,$disabledAlbum[0]['value']);
             if($albumList) {
                 foreach ($albumList as $key => $value) {
                     $imageUrlList = array();
@@ -306,15 +403,40 @@ class Album extends Controller
                     if($imageUrlList) {
                         $imageUrlList = array_column(json_decode($imageUrlList,true),'image_url');
                         foreach ($imageUrlList as $p => $q) {
-                            $imageUrlList[$p] = $q . '?' . config('custom_list');
+                            if(substr($q,0,12) == 'http://image') {
+                                $imageUrlList[$p] = $q . '?' . config('custom_list');
+                            }else {
+                                $imageUrlList[$p] = $q . '?' . config('custom_list_alioss');
+                            }
+
                         }
                     }
                     $albumList[$key]['imageUrlList'] = $imageUrlList;
                     if($value['cover_url'] =='' || $value['cover_url'] == null || !$value['cover_url']) {
                         $cover_image = model('image')->getCoverImage($value['album_id']);
                         if($cover_image) {
-                            $userAlbumList[$key]['cover_url'] = $cover_image['image_url'];
+                            if(substr($cover_image['image_url'],0,12) == 'http://image') {
+                                $userAlbumList[$key]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list');
+                            }else {
+                                $userAlbumList[$key]['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_alioss');
+                            }
+
                         }
+                    }else {
+                        if(substr($value['cover_url'],0,12) == 'http://image') {
+                            $userAlbumList[$key]['cover_url'] = $value['cover_url'] . '?' . config('custom_list');
+                        }else {
+                            $userAlbumList[$key]['cover_url'] = $value['cover_url'] . '?' . config('custom_list_alioss');
+                        }
+
+                        if($value['cover_url_bak'] != null || $value['cover_url_bak'] != '') {
+                            if(substr($value['cover_url_bak'],0,12) == 'http://image') {
+                                $userAlbumList[$key]['cover_url_bak'] = $value['cover_url_bak'] . '?' . config('custom_list');
+                            }else {
+                                $userAlbumList[$key]['cover_url_bak'] = $value['cover_url_bak'] . '?' . config('custom_list_alioss');
+                            }
+                        }
+
                     }
                     $albumList[$key]['photo_num'] = model('image')->getImageCount($value['album_id']);
                 }
@@ -353,13 +475,15 @@ class Album extends Controller
                 'message' => '用户ID获取失败',
             ));
         }
+
+        $disabledAlbum = model('general')->listGeneral();
         // 获取关注记录
         $relaPay = model('relapay')->listUserRelaPay($user_id,$page,$pageSize);
         if($relaPay) {
             // 获取打赏的图册ID
             $albumIdList = array_unique(array_column(json_decode($relaPay,true),'album_id'));
             // 根据图册ID批量获取图册列表
-            $albumList = model('album')->listAlbumByIDS($albumIdList);
+            $albumList = model('album')->listAlbumByIDS($albumIdList,0,$disabledAlbum[0]['value']);
             foreach ($albumList as $key => $value) {
                 $albumList[$key]['photo_num'] = model('image')->getImageCount($value['album_id']);
             }
@@ -396,19 +520,41 @@ class Album extends Controller
         $pageSize = input('get.pageSize/d',10);
         $userLikes = array();
 
+        $disabledAlbum = model('general')->listGeneral();
         // 获取关联信息
         $relaAlbumList  = model('Relasubject')->listRelaSubject($subject_id,$page,$pageSize);
         if($relaAlbumList) {
             // 获取z专题的图册ID
             $albumIdList = array_unique(array_column(json_decode($relaAlbumList,true),'album_id'));
             // 根据图册ID批量获取图册列表
-            $albumList = model('album')->listAlbumByIDS($albumIdList);
+            $albumList = model('album')->listAlbumByIDS($albumIdList,1,$disabledAlbum[0]['value']);
             foreach ($albumList as $index => $item) {
                 if($item['cover_url'] =='' || $item['cover_url'] == null || !$item['cover_url']) {
                     $cover_image = model('image')->getCoverImage($item['album_id']);
                     if($cover_image) {
-                        $albumList[$index]['cover_url'] = $cover_image['image_url'];
+                        if(substr($cover_image['image_url'],0,12) == 'http://image') {
+                            $albumList[$index]['cover_url'] = $cover_image['image_url']  . '?' . config('custom_list');
+                        }else {
+                            $albumList[$index]['cover_url'] = $cover_image['image_url']  . '?' . config('custom_list_alioss');
+                        }
+
                     }
+                }else {
+                    if(substr($item['cover_url'],0,12) == 'http://image') {
+                        $albumList[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list');
+                    }else {
+                        $albumList[$index]['cover_url'] = $item['cover_url'] . '?' . config('custom_list_alioss');
+                    }
+
+                    if($item['cover_url_bak'] != null || $item['cover_url_bak'] != '') {
+                        if(substr($item['cover_url_bak'],0,12) == 'http://image') {
+                            $albumList[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list');
+                        }else {
+                            $albumList[$index]['cover_url_bak'] = $item['cover_url_bak'] . '?' . config('custom_list_alioss');
+                        }
+
+                    }
+
                 }
                 $albumList[$index]['photo_num'] = model('image')->getImageCount($item['album_id']);
             }
@@ -444,6 +590,7 @@ class Album extends Controller
         $is_pay = input('post.is_pay/d',0);
         $pay_money = input('post.pay_money/d',0);
         $name = input('post.name/s','');
+        $subject_id = input('post.subject_id/d',0);
 
         if(!$user_id) {
             return json(array(
@@ -467,6 +614,24 @@ class Album extends Controller
         );
 
         $album_id = model('album')->saveAlbum($albumData);
+        // 判断是否有专题信息
+        if($subject_id != 0) {
+            // 写入专题信息
+            $subjectData = array(
+                'subject_id' => $subject_id,
+                'album_id' => $album_id,
+            );
+            $relaSubject = model('relasubject')->saveRelaSubject($subjectData);
+            if(!$relaSubject) {
+                return json(array(
+                    'code' => 400,
+                    'message' => '专题绑定失败',
+                    'data' => array(
+                        'album_id' => $album_id,
+                    )
+                ));
+            }
+        }
         if($album_id) {
             return json(array(
                 'code' => 200,
@@ -494,6 +659,7 @@ class Album extends Controller
         $pay_money = input('put.pay_money/d',0);
         $name = input('put.name/s','');
         $album_id = input('put.album_id/d',0);
+        $subject_id = input('post.subject_id/d',0);
 
         if(!$user_id) {
             return json(array(
@@ -522,9 +688,46 @@ class Album extends Controller
         );
 
         // 更新图册信息
-        $album_id = model('album')->updateAlbum($album_id,$albumData);
+        $new_album_id = model('album')->updateAlbum($album_id,$albumData);
+        // 判断是否有专题信息
+        if($subject_id != 0) {
+            // 写入专题信息
+            $subjectData = array(
+                'subject_id' => $subject_id,
+                'album_id' => $album_id,
+            );
+            // 获取专题信息记录
+            $relaSubject = model('relasubject')->getRelaSubject($album_id);
+            if($relaSubject) {
+                // 有专题记录，更新专题记录
+                if($relaSubject['subject_id'] != $subject_id) {
+                    $newRelaSubject = model('relasubject')->updateRelaSubject($relaSubject['relasubject_id'],$subjectData);
+                    if(!$newRelaSubject) {
+                        return json(array(
+                            'code' => 400,
+                            'message' => '专题修改失败',
+                            'data' => array(
+                                'album_id' => $album_id,
+                            )
+                        ));
+                    }
+                }
+            }else {
+                // 没有专题记录，创建专题信息
+                $newRelaSubject = model('relasubject')->saveRelaSubject($subjectData);
+                if(!$newRelaSubject) {
+                    return json(array(
+                        'code' => 400,
+                        'message' => '专题绑定失败',
+                        'data' => array(
+                            'album_id' => $album_id,
+                        )
+                    ));
+                }
+            }
 
-        if($album_id) {
+        }
+        if($new_album_id || $newRelaSubject) {
             return json(array(
                 'code' => 200,
                 'message' => '图册修改成功',
@@ -548,6 +751,7 @@ class Album extends Controller
         $user_id = input('put.user_id/d',13);
         $album_id = input('put.album_id/d',0);
         $image_id = input('put.image_id/d',0);
+        $cover_type = input('put.cover_type/d',0);
 
         if(!$user_id) {
             return json(array(
@@ -577,9 +781,18 @@ class Album extends Controller
             ));
         }
         // 封装封面信息
-        $albumData = array(
-            'cover_url' => $imageInfo['image_url'],
-        );
+        if($cover_type == 0) {
+            $albumData = array(
+                'cover_url' => $imageInfo['image_url'],
+                'cover_url_width' => $imageInfo['width'],
+                'cover_url_height' => $imageInfo['height'],
+            );
+        } else {
+            $albumData = array(
+                'cover_url_bak' => $imageInfo['image_url'],
+            );
+        }
+
         // 更新图册信息
         $album_id = model('album')->updateAlbum($album_id,$albumData);
         if($album_id) {
@@ -597,4 +810,5 @@ class Album extends Controller
             ));
         }
     }
+
 }

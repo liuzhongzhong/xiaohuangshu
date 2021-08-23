@@ -9,6 +9,9 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+// 获取所有图册列表
+
+
 /**
  * 图册
  */
@@ -88,6 +91,9 @@ Route::get('api/user/user','wxapp/user/getUser');
 Route::post('api/login/login','wxapp/user/login');
 // 保存用户信息
 Route::post('api/user/user','wxapp/user/saveUser');
+
+// 分享
+Route::post('api/album/share','wxapp/share/saveShareInfo');
 
 return [
 

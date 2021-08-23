@@ -57,6 +57,6 @@ class Relapay extends Model
         if(!$data) {
             exception('Relapay Model saveRelaPay data为空');
         }
-        return Relapay::save($data)->relapay_id;
+        return Relapay::save($data);
     }
 }

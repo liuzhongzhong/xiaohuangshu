@@ -26,7 +26,8 @@ class Image extends Controller
         $page = input('get.page/d',1);
         $pageSize = input('get.pageSize/d',50);
         $isPay = 0; // 0未付费，1已付费
-        $payAlbum = 0; // 0免费相册，1付费相册
+        $isShare = 0; // 0未分享，1已分享
+
         if(!$album_id) {
             return json(array(
                 'code' => 410,
@@ -37,68 +38,170 @@ class Image extends Controller
 
         // 获取图册信息
         $albumInfo = model('album')->getAlbum($album_id);
-        // 获取用户信息
-        $userInfo = model('user')->getUser($albumInfo['user_id']);
+        if($albumInfo['virtual_user'] == 0) {
+            // 获取用户信息
+            $userInfo = model('user')->getUser($albumInfo['user_id']);
+        }else {
+            // 获取虚拟用户信息
+            $userInfo = model('virtualuser')->getUser($albumInfo['virtual_user']);
+        }
+
         // 获取当前登录用户关注信息
         $relaLike = model('relalike')->getRelaLike($user_id,$album_id);
 
         $albumInfo['user_name'] = $userInfo['nickName'];
         $albumInfo['avatar_url'] = $userInfo['avatarUrl'];
 
-        if($relaLike) {
-            $albumInfo['is_collect'] = 1;
-        }else {
-            $albumInfo['is_collect'] = 0;
-        }
+        $albumInfo['is_collect'] = $relaLike ? 1 : 0;
 
         if($albumInfo['cover_url'] =='' || $albumInfo['cover_url'] == null || !$albumInfo['cover_url']) {
             $cover_image = model('image')->getCoverImage($albumInfo['album_id']);
             if($cover_image) {
-                $albumInfo['cover_url'] = $cover_image['image_url'];
+
+                if(substr($cover_image['image_url'],0,12) == 'http://image') {
+                    $albumInfo['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list');
+                }else {
+                    $albumInfo['cover_url'] = $cover_image['image_url'] . '?' . config('custom_list_alioss');
+                }
+
+
+                $albumInfo['cover_url_width'] = $cover_image['width'];
+                $albumInfo['cover_url_height'] = $cover_image['height'];
+            }
+        } else {
+            // 优化图片体积
+            if(substr($albumInfo['cover_url'],0,12) == 'http://image') {
+                $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list');
+            }else {
+                $albumInfo['cover_url'] = $albumInfo['cover_url'] . '?' . config('custom_list_alioss');
+            }
+
+            if($albumInfo['cover_url_bak'] != null || $albumInfo['cover_url_bak'] != '') {
+                if(substr($albumInfo['cover_url_bak'],0,12) == 'http://image') {
+                    $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list');
+                }else {
+                    $albumInfo['cover_url_bak'] = $albumInfo['cover_url_bak'] . '?' . config('custom_list_alioss');
+                }
+
             }
         }
 
         // 获取图片列表
         $imageList = model('image')->listImages($album_id,$page,$pageSize);
 
-        // 判断是否付费相册
-        if($albumInfo['is_pay'] == 1 && $user_id != $albumInfo['user_id']) {
-            // 付费相册
-            $payAlbum = 1;
-            // 判断用户是否已付费
-            $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
-            if($relaUserPay) {
-                // 已付费
-                $isPay = 1;
-            }else {
-                // 未付费
-                $isPay = 0;
+        // 判断当前用户是否是相册主人
+        $isAuthor = false;
+        if($user_id != $albumInfo['user_id']) {
+            // 不是相册主人
+            if($albumInfo['is_pay'] == 1) {
+                // 判断用户是否已付费
+                $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
+                $isPay = $relaUserPay ? 1 : 0;
+            }else if($albumInfo['is_pay'] == 2) {
+                // 判断用户是否已分享
+                $relaUserShare = model('relashare')->getRelaShare($user_id,$album_id);
+                $isShare = $relaUserShare ? 1 : 0;
+            }else if($albumInfo['is_pay'] == 3) {
+                // 判断用户是否已付费
+                $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
+                $isPay = $relaUserPay ? 1 : 0;
+                // 判断用户是否已分享
+                $relaUserShare = model('relashare')->getRelaShare($user_id,$album_id);
+                $isShare = $relaUserShare ? 1 : 0;
             }
         }else {
-            // 非付费相册
-            $payAlbum = 0;
+            $isAuthor = true;
         }
 
         if($imageList) {
             foreach ($imageList as $key => $value) {
-                $imageList[$key]['checked'] = false;
-                if($payAlbum == 1) {
-                    // 付费相册
-                    if($isPay == 1) {
-                        // 已付费
-                        $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
-                    }else {
-                        // 未付费
-                        if($key < 4 && $page == 1) {
 
-                            $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                $imageList[$key]['checked'] = false;
+                if($albumInfo['is_pay'] != 0 && !$isAuthor) {
+                    if($albumInfo['is_pay'] == 1) {
+                        // 打赏可见
+                        if($isPay == 1) {
+                            // 已付费
+                            if(substr($value['image_url'],0,12) == 'http://image') {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                            }else {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                            }
+
                         }else {
-                            $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
+                            // 未付费
+                            if($key < 4 && $page == 1) {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                }
+                            }else {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                }
+                            }
+                        }
+                    }else if($albumInfo['is_pay'] == 2) {
+                        // 分享可见
+                        if($isShare == 1) {
+                            // 已分享
+                            if(substr($value['image_url'],0,12) == 'http://image') {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                            }else {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                            }
+                        }else {
+                            // 未分享
+                            if($key < 4 && $page == 1) {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                }
+                            }else {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                }
+                            }
+                        }
+                    }else if($albumInfo['is_pay'] == 3) {
+                        // 打赏或分享可见
+                        if($isPay == 1 || $isShare == 1) {
+                            // 已付费
+                            if(substr($value['image_url'],0,12) == 'http://image') {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                            }else {
+                                $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                            }
+                        }else {
+                            // 未付费
+                            if($key < 4 && $page == 1) {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                                }
+                            }else {
+                                if(substr($value['image_url'],0,12) == 'http://image') {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list');
+                                }else {
+                                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('blur_list_alioss');
+                                }
+                            }
                         }
                     }
                 }else {
                     // 免费相册
-                    $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                    if(substr($value['image_url'],0,12) == 'http://image') {
+                        $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list');
+                    }else {
+                        $imageList[$key]['image_url'] = $value['image_url'] . '?' . config('custom_list_alioss');
+                    }
                 }
                 if($key%2 == 0) {
                     if($key+1 < count($imageList)) {
@@ -144,8 +247,8 @@ class Image extends Controller
                 'message' => '图片获取成功',
                 'data' => array(
                     'imageList' => $imageList,
-                    'payAlbum' => $payAlbum,
                     'isPay' => $isPay,
+                    'isShare' => $isShare,
                     'albumInfo' => $albumInfo,
                 ),
             ));
@@ -179,47 +282,125 @@ class Image extends Controller
         $album_id = input('get.album_id/d',2);
         $user_id = input('get.user_id/d',1);
         $isPay = 0; // 0未付费，1已付费
-        $payAlbum = 0; // 0免费相册，1付费相册
+        $isShare = 0; // 0未分享，1已分享
         $imageUrlList = array();
 
         // 判断是否付费相册
         $albumInfo = model('album')->getAlbum($album_id);
-        if($albumInfo['is_pay'] == 1 && $user_id != $albumInfo['user_id']) {
-            // 付费相册
-            $payAlbum = 1;
-            // 判断用户是否已付费
-            $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
-            if($relaUserPay) {
-                // 已付费
-                $isPay = 1;
-            }else {
-                // 未付费
-                $isPay = 0;
+        // 判断当前用户是否是相册主人
+        $isAuthor = false;
+        if($user_id != $albumInfo['user_id']) {
+            // 不是相册主人
+            if($albumInfo['is_pay'] == 1) {
+                // 判断用户是否已付费
+                $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
+                $isPay = $relaUserPay ? 1 : 0;
+            }else if($albumInfo['is_pay'] == 2) {
+                // 判断用户是否已分享
+                $relaUserShare = model('relashare')->getRelaShare($user_id,$album_id);
+                $isShare = $relaUserShare ? 1 : 0;
+            }else if($albumInfo['is_pay'] == 3) {
+                // 判断用户是否已付费
+                $relaUserPay = model('relapay')->getRelaPay($user_id,$album_id);
+                $isPay = $relaUserPay ? 1 : 0;
+                // 判断用户是否已分享
+                $relaUserShare = model('relashare')->getRelaShare($user_id,$album_id);
+                $isShare = $relaUserShare ? 1 : 0;
             }
         }else {
-            // 非付费相册
-            $payAlbum = 0;
+            $isAuthor = true;
         }
 
         $imageNoLimitList = model('image')->listImagesNoLimit($album_id);
         $imageUrlList = array_column(json_decode($imageNoLimitList),'image_url');
         foreach ($imageUrlList as $index => $item) {
-            if($payAlbum == 1) {
-                // 付费相册
-                if($isPay == 1) {
-                    // 已付费
-                    $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
-                }else {
-                    // 未付费
-                    if($index < 4) {
-                        $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image')  . config('slim_image');
+            if($albumInfo['is_pay'] != 0 && !$isAuthor) {
+                if($albumInfo['is_pay'] == 1) {
+                    // 付费相册
+                    if($isPay == 1) {
+                        // 已付费
+                        if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                        }else {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                        }
+
                     }else {
-                        $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image');
+                        // 未付费
+                        if($index < 4) {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            }
+                        }else {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image_txcos');
+                            }
+                        }
+                    }
+                }else if($albumInfo['is_pay'] == 2) {
+                    // 分享相册
+                    if($isShare == 1) {
+                        // 已付费
+                        if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                        }else {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                        }
+                    }else {
+                        // 未付费
+                        if($index < 4) {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            }
+                        }else {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image_txcos');
+                            }
+                        }
+                    }
+                }else if($albumInfo['is_pay'] == 3) {
+                    // 分享相册
+                    if($isShare == 1 || $isPay == 1) {
+                        // 已付费
+                        if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                        }else {
+                            $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                        }
+                    }else {
+                        // 未付费
+                        if($index < 4) {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                            }
+                        }else {
+                            if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image');
+                            }else {
+                                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('blur_image_txcos');
+                            }
+
+                        }
                     }
                 }
             }else {
                 // 免费相册
-                $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                if(substr($imageUrlList[$index],0,12) == 'http://image') {
+                    $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image');
+                }else {
+                    $imageUrlList[$index] = $imageUrlList[$index] . '?' . config('custom_image_alioss');
+                }
+
             }
         }
 
