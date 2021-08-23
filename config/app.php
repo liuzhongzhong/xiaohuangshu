@@ -157,7 +157,7 @@ return [
     'blur_list_alioss' => 'x-oss-process=style/fuzzy_list',
 
     'blur_image_txcos' => 'imageMogr2/blur/30x5',
-    'blur_list_txcos' => 'imageMogr2/blur/10x1',
+    'blur_list_txcos' => 'imageMogr2/blur/15x2',
 
 
     // 微信小程序信息
