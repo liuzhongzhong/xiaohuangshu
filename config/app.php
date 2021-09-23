@@ -164,8 +164,8 @@ return [
 
     // 微信小程序信息
     'wechat_small_application' => array(
-        'appid' => 'wxe830310b5e068d6e',
-        'appsecret' => '4ba63832260e963cc61069da4191de32',
+        'appid' => 'wx8dcf48b3c8158bc3',
+        'appsecret' => '5db4c4d60f9050d61859bccd75232985',
     ),
 
     /*// 微信商户号
